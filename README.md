@@ -37,7 +37,9 @@ ulasan singkat. Tema ini berbeda dari tugas sebelumnya (CRUD catatan/notes).
 │   ├── Dockerfile            # multi-stage: Node build -> Nginx
 │   └── .dockerignore
 ├── postman/letterbox-api.postman_collection.json
-├── .github/workflows/ci.yml  # test + build + deploy (GHCR)
+├── scripts/compose-smoke.sh  # smoke test Compose (CRUD + persistensi)
+├── docs/{laporan.md,github-setup.md,checklist-bukti.md,rulesets/}
+├── .github/workflows/{ci.yml,compose-smoke.yml}
 ├── docker-compose.yml
 ├── .env.example
 └── README.md
@@ -188,6 +190,19 @@ Job deploy memakai `if: github.event_name == 'push' && github.ref == 'refs/heads
 sehingga Pull Request dan branch `dev`/`feature/*` berhenti setelah job pengujian dan build.
 Tag image memakai **commit SHA** (`ghcr.io/<owner>/<repo>-backend:<sha>` dan
 `...-frontend:<sha>`), bukan `latest`.
+
+Bukti run yang sudah berhasil:
+
+- `main` + deploy: <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40058911795>
+- Pull Request / `dev` tanpa deploy:
+  <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40058850949>
+- Smoke test Docker Compose (CRUD + persistensi):
+  <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40059329481>
+
+Workflow manual **Compose Smoke Test** (`.github/workflows/compose-smoke.yml`) menjalankan
+`scripts/compose-smoke.sh` pada runner Ubuntu: build, `docker compose up -d`, login, CRUD,
+proxy Nginx, `docker compose down`/`up` untuk membuktikan volume `db_data` persisten, lalu
+mengunggah `compose-ps.txt` dan `compose-logs.txt` sebagai artifact.
 
 ### Secrets yang diperlukan
 

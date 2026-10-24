@@ -102,6 +102,10 @@ TOKEN=$(login)
 curl -fsS "$BASE/films" -H "Authorization: Bearer $TOKEN" | grep -q 'Persistence Marker'
 echo "Setelah down lalu up, film penanda masih ada -> volume persisten."
 
+echo "== 7b. Data langsung dari MySQL =="
+docker compose exec -T db sh -c \
+  'mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -e "SELECT id,title,status FROM films ORDER BY id;"'
+
 echo "== 8. Bukti FrankenPHP =="
 docker compose logs --tail=80 backend | grep -E 'FrankenPHP|http.log.access|handled request|Caddy' || true
 curl -sI "http://localhost:8000/up" | tr -d '\r' | grep -Ei 'HTTP/|Server:|X-Powered-By:' || true
