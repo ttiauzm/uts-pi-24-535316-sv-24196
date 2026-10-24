@@ -21,13 +21,6 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  # Rahasia disimpan di Settings > Secrets and variables > Actions.
-  # Nilai ini tidak pernah ditulis di repository.
-  APP_KEY: ${{ secrets.APP_KEY }}
-  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-  DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
-
 jobs:
   backend:
     name: Backend (Laravel test)
@@ -57,10 +50,12 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Siapkan .env (APP_KEY dari GitHub Secrets)
+        env:
+          APP_KEY_SECRET: ${{ secrets.APP_KEY }}
         run: |
           cp .env.example .env
-          if [ -n "$APP_KEY" ]; then
-            sed -i "s|^APP_KEY=.*|APP_KEY=${APP_KEY}|" .env
+          if [ -n "$APP_KEY_SECRET" ]; then
+            sed -i "s|^APP_KEY=.*|APP_KEY=${APP_KEY_SECRET}|" .env
           else
             php artisan key:generate --ansi
           fi
