@@ -1,5 +1,5 @@
 # Ringkasan hasil scripts/compose-smoke.sh
-# https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40059329481
+# https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40059764556
 
 == 1. Build dan jalankan seluruh sistem ==
 Semua service sehat setelah 2 percobaan.
@@ -28,6 +28,13 @@ Film penanda dibuat.
 docker compose down selesai (volume db_data dipertahankan).
 Semua service sehat setelah 2 percobaan.
 Setelah down lalu up, film penanda masih ada -> volume persisten.
+
+== 7b. Data langsung dari MySQL ==
+id	title	status
+1	Akira	sudah_ditonton
+2	Perfect Days	sedang_ditonton
+3	The Grand Budapest Hotel	ingin_ditonton
+5	Persistence Marker	ingin_ditonton
 
 == 8. Bukti FrankenPHP ==
 HTTP/1.1 200 OK
