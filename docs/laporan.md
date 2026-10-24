@@ -421,6 +421,15 @@ Workflow `.github/workflows/ci.yml` memiliki tiga job:
 
 > **[SCREENSHOT 4.7]** Tab **Actions** dengan workflow CI/CD berwarna hijau.
 
+Bukti daring (dapat dibuka langsung):
+
+- Workflow CI/CD: <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/workflows/ci.yml>
+- Run `main` dengan job deploy hijau:
+  <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40058911795>
+  (commit `5541813`)
+- Run Pull Request / `dev` tanpa deploy:
+  <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40058850949>
+
 ---
 
 ## 5. Continuous Deployment (CPMK3)
@@ -439,9 +448,11 @@ Karena kondisi tersebut, workflow pada Pull Request, branch `dev`, dan branch fi
 setelah job pengujian dan build. Job deploy berstatus *skipped*.
 
 > **[SCREENSHOT 5.1]** Run workflow pada `main`: ketiga job hijau, termasuk **Deploy**.
+> Bukti: <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40058911795>
 >
 > **[SCREENSHOT 5.2]** Run workflow pada `dev` atau PR: dua job hijau dan job **Deploy**
 > berstatus *skipped*.
+> Bukti: <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40058850949>
 
 ### 5.2 Rahasia di GitHub Secrets
 
@@ -483,10 +494,17 @@ yang berisi nilai sebenarnya masuk `.gitignore`; hanya `.env.example` yang di-co
     tags: ${{ env.IMAGE_PREFIX }}-frontend:${{ github.sha }}
 ```
 
-Tag memakai **nomor commit** (`github.sha`), bukan `latest`.
+Tag memakai **nomor commit** (`github.sha`), bukan `latest`. Tag yang benar-benar di-push pada
+run `main` commit `5541813`:
+
+```
+ghcr.io/ttiauzm/uts-pi-24-535316-sv-24196-backend:5541813c340dfa67b98659718751f6054cfbf710
+ghcr.io/ttiauzm/uts-pi-24-535316-sv-24196-frontend:5541813c340dfa67b98659718751f6054cfbf710
+```
 
 > **[SCREENSHOT 5.5]** Halaman **Packages** yang menampilkan dua image:
 > `…-backend` dan `…-frontend`, dengan tag commit SHA.
+> Buka <https://github.com/ttiauzm?tab=packages>.
 >
 > **[SCREENSHOT 5.6]** Detail salah satu package yang menunjukkan tag SHA.
 
@@ -627,16 +645,30 @@ docker compose up -d --build
 > **[SCREENSHOT 7.2]** Output `docker compose ps`: tiga service berstatus `Up (healthy)`,
 > dengan port `8000` dan `8080` ter-publish.
 
-Contoh format keluaran yang diharapkan (ganti dengan keluaran asli):
+Keluaran nyata dari run Compose Smoke Test (bukti lengkap:
+`docs/evidence/compose-ps.txt`):
 
 ```
-NAME                 IMAGE                    STATUS                   PORTS
-...-backend-1        letterbox-backend:local  Up (healthy)             0.0.0.0:8000->8000/tcp
-...-db-1             mysql:8.4.13             Up (healthy)             3306/tcp
-...-frontend-1       letterbox-frontend:local Up (healthy)             0.0.0.0:8080->8080/tcp
+NAME                                   IMAGE                      SERVICE    STATUS                    PORTS
+uts-pi-24-535316-sv-24196-backend-1    letterbox-backend:local    backend    Up 11 seconds (healthy)   80/tcp, 443/tcp, 2019/tcp, 443/udp, 0.0.0.0:8000->8000/tcp
+uts-pi-24-535316-sv-24196-db-1         mysql:8.4.13               db         Up 21 seconds (healthy)   3306/tcp, 33060/tcp
+uts-pi-24-535316-sv-24196-frontend-1   letterbox-frontend:local   frontend   Up 5 seconds (healthy)    0.0.0.0:8080->8080/tcp
 ```
 
 ### 7.4 CRUD benar-benar berjalan
+
+Hasil pengujian otomatis (bukti lengkap: `docs/evidence/smoke-summary.txt`):
+
+```
+GET /films tanpa token -> 401
+POST /films tidak valid -> 422
+POST /films -> 201, id=4
+GET /films/4 -> 200
+PUT /films/4 -> 200
+DELETE /films/4 -> 200
+GET http://localhost:8080/ memuat halaman Letterbox.
+POST http://localhost:8080/api/login -> 200 (proxy ke service backend).
+```
 
 > **[SCREENSHOT 7.3]** Login dan daftar film di `http://localhost:8080` (data berasal dari
 > container backend).
@@ -663,6 +695,34 @@ docker compose up -d
 ```
 
 > **[SCREENSHOT 7.7]** Setelah `down` lalu `up -d`, data yang dibuat sebelumnya masih ada.
+
+Hasil nyata: `Setelah down lalu up, film penanda masih ada -> volume persisten.`
+(lihat `docs/evidence/smoke-summary.txt`).
+
+### 7.6 Verifikasi otomatis Docker Compose di GitHub Actions
+
+Selain dijalankan manual di laptop, seluruh alur Compose juga diverifikasi otomatis pada runner
+Ubuntu GitHub Actions melalui workflow **Compose Smoke Test**
+(`.github/workflows/compose-smoke.yml`, `workflow_dispatch`). Workflow ini menjalankan skrip
+`scripts/compose-smoke.sh` yang:
+
+1. membuat `.env` sementara,
+2. menjalankan `docker compose up -d --build` dan menunggu tiga service sehat,
+3. login, lalu menguji `401` tanpa token dan `422` untuk data tidak valid,
+4. melakukan CRUD lengkap (`201`, `200`, `200`, `200`),
+5. memanggil frontend `http://localhost:8080` dan login lewat proxy Nginx,
+6. membuat film penanda, `docker compose down`, `docker compose up -d`, lalu memastikan film
+   penanda masih ada (volume `db_data` persisten),
+7. menampilkan log FrankenPHP dan `docker compose ps`.
+
+Run yang berhasil:
+<https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40059329481>
+
+> **[SCREENSHOT 7.8]** Halaman run **Compose Smoke Test** yang hijau.
+>
+> **[SCREENSHOT 7.9]** Log langkah “Jalankan smoke test” yang menampilkan `docker compose ps`
+> (tiga service `Up (healthy)`), hasil CRUD, dan pesan
+> “Setelah down lalu up, film penanda masih ada”.
 
 ---
 
@@ -701,11 +761,29 @@ curl -i http://localhost:8000/up
 docker compose logs --tail=80 backend
 ```
 
+Baris nyata dari log container (`docs/evidence/frankenphp-log.txt`):
+
+```
+backend-1 | {"level":"info","logger":"frankenphp","msg":"FrankenPHP started","php_version":"8.3.36",...}
+backend-1 | ... http.log.access.log0 handled request {"request": {"method": "POST", "uri": "/api/login", ...}, "status": 200, "resp_headers": {"Server": ["FrankenPHP Caddy"], "X-Powered-By": ["PHP/8.3.36"], ...}}
+backend-1 | ... http.log.access.log0 handled request {"request": {"method": "GET", "uri": "/api/films", ...}, "status": 200, "resp_headers": {"Server": ["FrankenPHP Caddy"], "X-Powered-By": ["PHP/8.3.36"], ...}}
+```
+
+```bash
+$ curl -sI http://localhost:8000/up
+HTTP/1.1 200 OK
+Server: FrankenPHP Caddy
+X-Powered-By: PHP/8.3.36
+```
+
 > **[SCREENSHOT 8.1]** `curl -i http://localhost:8000/up` → `HTTP/1.1 200 OK` dengan header
-> `Server: FrankenPHP` (dan `X-Powered-By: PHP/8.3.x`).
+> `Server: FrankenPHP Caddy` (dan `X-Powered-By: PHP/8.3.36`).
 >
 > **[SCREENSHOT 8.2]** `docker compose logs backend` menampilkan baris FrankenPHP/Caddy
 > (`logger":"http.log.access"`, `msg":"handled request"`) untuk permintaan `/api/...`.
+>
+> Log lengkap juga diunggah sebagai artifact **compose-evidence** pada run
+> <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40059329481>.
 
 ---
 
@@ -867,7 +945,8 @@ docker compose down
 | 23 | `docker compose up`, `docker compose ps` | 7.1–7.2 |
 | 24 | CRUD dari browser + query MySQL | 7.3–7.6 |
 | 25 | Persistensi setelah `down` lalu `up` | 7.7 |
-| 26 | `curl -i /up` + log FrankenPHP | 8.1–8.2 |
+| 26 | Run **Compose Smoke Test** hijau + log `docker compose ps` | 7.8–7.9 |
+| 27 | `curl -i /up` + log FrankenPHP | 8.1–8.2 |
 
 ### Lampiran C — Berkas penting
 
@@ -887,5 +966,32 @@ frontend/Dockerfile
 frontend/nginx.conf
 docker-compose.yml
 .github/workflows/ci.yml
+.github/workflows/compose-smoke.yml
+scripts/compose-smoke.sh
 postman/letterbox-api.postman_collection.json
 ```
+
+### Lampiran D — Berkas bukti
+
+```
+docs/laporan.pdf                    # laporan ini (draf PDF)
+docs/laporan.css                    # gaya cetak
+docs/evidence/compose-ps.txt        # output docker compose ps
+docs/evidence/smoke-summary.txt     # ringkasan CRUD + persistensi
+docs/evidence/frankenphp-log.txt    # potongan log FrankenPHP
+docs/checklist-bukti.md             # daftar bukti yang perlu diambil
+docs/github-setup.md                # langkah repository/branch/secrets
+```
+
+Run GitHub Actions yang dapat dibuka:
+
+- CI/CD `main` + deploy:
+  <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40058911795>
+- PR/`dev` tanpa deploy:
+  <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40058850949>
+- Compose Smoke Test:
+  <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40059329481>
+
+> **Catatan:** PDF ini masih memuat penanda **[SCREENSHOT …]**. Ganti penanda tersebut
+> dengan tangkapan layar asli (lihat Lampiran B), lalu ekspor ulang ke PDF sebelum diunggah
+> ke Google Classroom.
