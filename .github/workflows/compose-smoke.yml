@@ -1,0 +1,54 @@
+# Smoke test manual untuk membuktikan seluruh sistem berjalan dengan Docker Compose.
+# Tidak berjalan otomatis pada push/PR (agar CI tetap cepat).
+# Jalankan dari tab Actions -> "Compose Smoke Test" -> Run workflow.
+name: Compose Smoke Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compose:
+    name: docker compose up + CRUD + persistensi
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout kode
+        uses: actions/checkout@v4
+
+      - name: Siapkan .env (kredensial sementara)
+        run: |
+          APP_KEY="base64:$(openssl rand -base64 32)"
+          cat > .env <<EOF
+          MYSQL_DATABASE=letterbox
+          MYSQL_USER=letterbox
+          MYSQL_PASSWORD=smoke_password_123
+          MYSQL_ROOT_PASSWORD=smoke_root_123
+          APP_KEY=${APP_KEY}
+          VITE_API_URL=/api
+          CORS_ALLOWED_ORIGINS=http://localhost:8080,http://127.0.0.1:8080
+          EOF
+
+      - name: Jalankan smoke test
+        run: bash scripts/compose-smoke.sh
+
+      - name: Simpan log container
+        if: always()
+        run: |
+          docker compose ps > compose-ps.txt 2>&1 || true
+          docker compose logs --no-color > compose-logs.txt 2>&1 || true
+
+      - name: Upload bukti
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compose-evidence
+          path: |
+            compose-ps.txt
+            compose-logs.txt
+
+      - name: Bersihkan
+        if: always()
+        run: docker compose down -v || true
