@@ -1,0 +1,24 @@
+# Konteks build backend (folder ini). Frontend punya Dockerfile & .dockerignore sendiri.
+.git
+.github
+.gitignore
+.gitattributes
+.env
+.env.*
+!.env.example
+node_modules
+vendor
+tests
+*.md
+Dockerfile
+.dockerignore
+.phpunit.cache
+.phpunit.result.cache
+public/build
+public/hot
+storage/logs/*
+storage/framework/views/*.php
+storage/framework/cache/data/*
+storage/framework/sessions/*
+bootstrap/cache/*.php
+database/database.sqlite

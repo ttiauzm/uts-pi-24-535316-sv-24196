@@ -3,8 +3,17 @@ import { pesanError } from './http'
 
 describe('pesanError', () => {
   it('menggabungkan pesan validasi 422 dari Laravel', () => {
-    const err = { response: { data: { errors: { title: ['Judul wajib diisi.'], content: ['Isi tidak valid.'] } } } }
-    expect(pesanError(err)).toBe('Judul wajib diisi. Isi tidak valid.')
+    const err = {
+      response: {
+        data: {
+          errors: {
+            title: ['Judul wajib diisi.'],
+            year: ['Tahun tidak valid.'],
+          },
+        },
+      },
+    }
+    expect(pesanError(err)).toBe('Judul wajib diisi. Tahun tidak valid.')
   })
 
   it('memakai message dari respons jika tidak ada errors', () => {

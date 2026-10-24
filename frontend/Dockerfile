@@ -3,7 +3,7 @@
 # =====================================================================
 # Stage 1 (build): install dependensi + build Vue (Vite) jadi file statis
 # =====================================================================
-FROM node:20-alpine AS build
+FROM node:22.20.0-alpine3.22 AS build
 WORKDIR /app
 
 # Layer dependensi: hanya berubah kalau package*.json berubah
@@ -12,16 +12,16 @@ RUN npm ci
 
 COPY . .
 
-# Alamat API backend dipasang saat build (dibaca Vite sebagai VITE_API_URL).
-# Dipanggil dari BROWSER, jadi harus alamat yang bisa dijangkau browser (bukan nama service Docker).
-ARG VITE_API_URL=http://localhost:8000/api
+# Alamat API dipasang saat build (dibaca Vite sebagai VITE_API_URL).
+# Default "/api" = origin yang sama, diteruskan Nginx ke service "backend".
+ARG VITE_API_URL=/api
 ENV VITE_API_URL=$VITE_API_URL
 RUN npm run build
 
 # =====================================================================
 # Stage 2 (runtime): Nginx non-root, hanya berisi hasil build statis
 # =====================================================================
-FROM nginxinc/nginx-unprivileged:1.27-alpine AS runtime
+FROM nginxinc/nginx-unprivileged:1.27.5-alpine3.21 AS runtime
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html

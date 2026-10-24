@@ -14,7 +14,7 @@ async function submit() {
   loading.value = true
   try {
     await login(email.value, password.value)
-    router.push('/catatan')
+    router.push('/films')
   } catch (err) {
     error.value = pesanError(err)
   } finally {
@@ -24,17 +24,37 @@ async function submit() {
 </script>
 
 <template>
-  <section>
-    <h2>Login</h2>
-    <form @submit.prevent="submit">
-      <p>
-        <label>Email<br /><input v-model="email" type="email" required /></label>
-      </p>
-      <p>
-        <label>Password<br /><input v-model="password" type="password" required /></label>
-      </p>
-      <p v-if="error" role="alert">{{ error }}</p>
-      <button type="submit" :disabled="loading">{{ loading ? 'Memproses...' : 'Masuk' }}</button>
+  <section class="login-shell">
+    <p class="eyebrow">Masuk</p>
+    <h1>Login</h1>
+    <p class="muted small">
+      Token dari Laravel Sanctum akan disimpan di browser dan dipakai untuk seluruh permintaan
+      berikutnya.
+    </p>
+
+    <form class="panel stack" @submit.prevent="submit">
+      <div>
+        <label for="email">Email</label>
+        <input id="email" v-model="email" type="email" autocomplete="username" required />
+      </div>
+      <div>
+        <label for="password">Password</label>
+        <input
+          id="password"
+          v-model="password"
+          type="password"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+      <p v-if="error" class="alert" role="alert">{{ error }}</p>
+      <div class="button-row">
+        <button type="submit" :disabled="loading">{{ loading ? 'Memproses...' : 'Masuk' }}</button>
+      </div>
     </form>
+
+    <p class="credentials small muted">
+      Akun demo hasil seeder: <strong>test@example.com</strong> / <strong>password</strong>
+    </p>
   </section>
 </template>

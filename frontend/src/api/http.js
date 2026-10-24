@@ -1,11 +1,12 @@
 import axios from 'axios'
 
-export const TOKEN_KEY = 'token'
+export const TOKEN_KEY = 'letterbox_token'
 
 // Satu instance Axios untuk semua request ke Laravel.
-// VITE_API_URL contoh: http://127.0.0.1:8000/api
+// Alamat API TIDAK ditulis di komponen: nilainya berasal dari VITE_API_URL.
+// Di Docker, VITE_API_URL=/api dan Nginx meneruskan /api ke service "backend".
 export const http = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   headers: { Accept: 'application/json' },
 })
 
@@ -20,8 +21,8 @@ http.interceptors.request.use((config) => {
 http.interceptors.response.use(
   (res) => res,
   (err) => {
-    const sudahLogin = err.config?.url?.includes('/login')
-    if (err.response?.status === 401 && !sudahLogin) {
+    const dariLogin = err.config?.url?.includes('/login')
+    if (err.response?.status === 401 && !dariLogin) {
       localStorage.removeItem(TOKEN_KEY)
       if (window.location.pathname !== '/login') window.location.assign('/login')
     }
@@ -47,10 +48,10 @@ export async function logout() {
   }
 }
 
-export const getNotes = () => http.get('/notes').then((r) => r.data)
-export const createNote = (payload) => http.post('/notes', payload).then((r) => r.data)
-export const updateNote = (id, payload) => http.put(`/notes/${id}`, payload).then((r) => r.data)
-export const deleteNote = (id) => http.delete(`/notes/${id}`).then((r) => r.data)
+export const getFilms = () => http.get('/films').then((r) => r.data)
+export const createFilm = (payload) => http.post('/films', payload).then((r) => r.data)
+export const updateFilm = (id, payload) => http.put(`/films/${id}`, payload).then((r) => r.data)
+export const deleteFilm = (id) => http.delete(`/films/${id}`).then((r) => r.data)
 
 // Ambil pesan error yang ramah dari respons Laravel (422/401/dll)
 export function pesanError(err) {
