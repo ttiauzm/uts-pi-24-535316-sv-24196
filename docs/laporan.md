@@ -234,13 +234,27 @@ Request login memiliki test script yang otomatis menyimpan token:
 
 ```javascript
 pm.test('status 200 OK', () => pm.response.to.have.status(200));
-const data = pm.response.json();
-pm.expect(data).to.have.property('token');
-if (data.token) pm.collectionVariables.set('token', data.token);
+const body = pm.response.json();
+pm.expect(body).to.have.property('token');
+if (body.token) pm.collectionVariables.set('token', body.token);
 ```
 
 Request `store` menyimpan `filmId`, sehingga `show`, `update`, dan `destroy` langsung memakai
-ID tersebut.
+ID tersebut. Request `logout` sengaja diletakkan **paling akhir** karena menghapus token.
+
+Koleksi juga dijalankan otomatis dengan Newman terhadap server lokal:
+
+```bash
+npx newman run postman/letterbox-api.postman_collection.json
+```
+
+Hasilnya **12 request, 20 assertion, 0 failure**:
+
+```text
+requests            12      0 failed
+test-scripts        12      0 failed
+assertions          20      0 failed
+```
 
 > **[SCREENSHOT 2.3]** Postman `POST /api/login` → **200 OK**, body berisi `token` dan
 > `token_type: Bearer`.
