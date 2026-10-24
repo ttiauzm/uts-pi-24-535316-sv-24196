@@ -18,14 +18,16 @@ jobs:
       - name: Checkout kode
         uses: actions/checkout@v4
 
-      - name: Siapkan .env (kredensial sementara)
+      - name: Siapkan .env (kredensial sementara, dibuat acak)
         run: |
           APP_KEY="base64:$(openssl rand -base64 32)"
+          MYSQL_PASSWORD="$(openssl rand -hex 16)"
+          MYSQL_ROOT_PASSWORD="$(openssl rand -hex 16)"
           cat > .env <<EOF
           MYSQL_DATABASE=letterbox
           MYSQL_USER=letterbox
-          MYSQL_PASSWORD=smoke_password_123
-          MYSQL_ROOT_PASSWORD=smoke_root_123
+          MYSQL_PASSWORD=${MYSQL_PASSWORD}
+          MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
           APP_KEY=${APP_KEY}
           VITE_API_URL=/api
           CORS_ALLOWED_ORIGINS=http://localhost:8080,http://127.0.0.1:8080
