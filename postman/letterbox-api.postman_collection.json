@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "b7f3c1a2-4d5e-4f60-9a71-letterbox2026",
     "name": "Letterbox API - UTS KEPL 24/535316/SV/24196",
-    "description": "Koleksi Postman untuk REST API Letterbox (Laravel + Sanctum).\n\nBase URL: {{baseUrl}} = http://localhost:8000/api\nAkun demo: test@example.com / password\n\nJalankan request secara berurutan: Login menyimpan token ke variabel koleksi, lalu request lain memakai Bearer {{token}}. Logout diletakkan paling akhir karena menghapus token.",
+    "description": "Koleksi Postman untuk REST API Letterbox (Laravel + Sanctum).\n\nBase URL: {{baseUrl}} = http://localhost:8000/api\nAkun demo: test@example.com / password\n\nJalankan Collection Runner dari atas ke bawah. Login menyimpan token ke variabel koleksi; request lain memakai Bearer {{token}}. Logout sengaja diletakkan paling akhir karena menghapus token.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -18,25 +18,42 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status 200 OK', () => pm.response.to.have.status(200));",
-                  "const data = pm.response.json();",
+                  "const body = pm.response.json();",
                   "pm.test('respons berisi token Bearer', () => {",
-                  "  pm.expect(data).to.have.property('token');",
-                  "  pm.expect(data.token_type).to.eql('Bearer');",
+                  "  pm.expect(body).to.have.property('token');",
+                  "  pm.expect(body.token_type).to.eql('Bearer');",
                   "});",
-                  "if (data.token) pm.collectionVariables.set('token', data.token);"
+                  "if (body.token) pm.collectionVariables.set('token', body.token);"
                 ]
               }
             }
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{baseUrl}}/login", "host": ["{{baseUrl}}"], "path": ["login"] }
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
           }
         },
         {
@@ -54,13 +71,30 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password-salah\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{baseUrl}}/login", "host": ["{{baseUrl}}"], "path": ["login"] }
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
           }
         },
         {
@@ -79,12 +113,31 @@
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Accept", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
             "auth": {
               "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
             },
-            "url": { "raw": "{{baseUrl}}/me", "host": ["{{baseUrl}}"], "path": ["me"] }
+            "url": {
+              "raw": "{{baseUrl}}/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me"
+              ]
+            }
           }
         },
         {
@@ -102,41 +155,40 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "auth": {
               "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
             },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Anggota Baru\",\n  \"email\": \"anggota{{$timestamp}}@example.com\",\n  \"password\": \"rahasia123\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": { "raw": "{{baseUrl}}/register", "host": ["{{baseUrl}}"], "path": ["register"] }
-          }
-        },
-        {
-          "name": "Logout (hapus token)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200 OK', () => pm.response.to.have.status(200));",
-                  "pm.collectionVariables.set('token', '');"
-                ]
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
               }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Accept", "value": "application/json" }],
-            "auth": {
-              "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
             },
-            "url": { "raw": "{{baseUrl}}/logout", "host": ["{{baseUrl}}"], "path": ["logout"] }
+            "url": {
+              "raw": "{{baseUrl}}/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "register"
+              ]
+            }
           }
         }
       ]
@@ -160,12 +212,31 @@
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Accept", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
             "auth": {
               "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
             },
-            "url": { "raw": "{{baseUrl}}/films", "host": ["{{baseUrl}}"], "path": ["films"] }
+            "url": {
+              "raw": "{{baseUrl}}/films",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "films"
+              ]
+            }
           }
         },
         {
@@ -177,26 +248,49 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status 201 Created', () => pm.response.to.have.status(201));",
-                  "const data = pm.response.json();",
-                  "pm.test('film tersimpan dengan id', () => pm.expect(data).to.have.property('id'));",
-                  "pm.collectionVariables.set('filmId', data.id);"
+                  "const body = pm.response.json();",
+                  "pm.test('film tersimpan dengan id', () => pm.expect(body).to.have.property('id'));",
+                  "pm.collectionVariables.set('filmId', body.id);"
                 ]
               }
             }
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "auth": {
               "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
             },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"title\": \"Perfect Days\",\n  \"director\": \"Wim Wenders\",\n  \"year\": 2023,\n  \"status\": \"ingin_ditonton\",\n  \"rating\": null,\n  \"review\": \"Pelan dan tenang.\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{baseUrl}}/films", "host": ["{{baseUrl}}"], "path": ["films"] }
+            "url": {
+              "raw": "{{baseUrl}}/films",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "films"
+              ]
+            }
           }
         },
         {
@@ -215,15 +309,31 @@
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Accept", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
             "auth": {
               "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
             },
             "url": {
               "raw": "{{baseUrl}}/films/{{filmId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["films", "{{filmId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "films",
+                "{{filmId}}"
+              ]
             }
           }
         },
@@ -243,20 +353,40 @@
           ],
           "request": {
             "method": "PUT",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "auth": {
               "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
             },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"title\": \"Perfect Days (edit)\",\n  \"director\": \"Wim Wenders\",\n  \"year\": 2023,\n  \"status\": \"sudah_ditonton\",\n  \"rating\": 5,\n  \"review\": \"Sudah selesai ditonton.\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/films/{{filmId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["films", "{{filmId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "films",
+                "{{filmId}}"
+              ]
             }
           }
         },
@@ -276,15 +406,31 @@
           ],
           "request": {
             "method": "DELETE",
-            "header": [{ "key": "Accept", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
             "auth": {
               "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
             },
             "url": {
               "raw": "{{baseUrl}}/films/{{filmId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["films", "{{filmId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "films",
+                "{{filmId}}"
+              ]
             }
           }
         }
@@ -309,9 +455,24 @@
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Accept", "value": "application/json" }],
-            "auth": { "type": "noauth" },
-            "url": { "raw": "{{baseUrl}}/films", "host": ["{{baseUrl}}"], "path": ["films"] }
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/films",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "films"
+              ]
+            }
           }
         },
         {
@@ -330,25 +491,100 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "auth": {
               "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
             },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"title\": \"\",\n  \"director\": \"\",\n  \"year\": 1800,\n  \"status\": \"tidak-valid\",\n  \"rating\": 9\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "url": { "raw": "{{baseUrl}}/films", "host": ["{{baseUrl}}"], "path": ["films"] }
+            "url": {
+              "raw": "{{baseUrl}}/films",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "films"
+              ]
+            }
           }
         }
       ]
+    },
+    {
+      "name": "Logout (paling akhir, hapus token)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200 OK', () => pm.response.to.have.status(200));",
+              "pm.collectionVariables.set('token', '');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/logout",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "logout"
+          ]
+        }
+      }
     }
   ],
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:8000/api" },
-    { "key": "token", "value": "" },
-    { "key": "filmId", "value": "" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "filmId",
+      "value": ""
+    }
   ]
 }
