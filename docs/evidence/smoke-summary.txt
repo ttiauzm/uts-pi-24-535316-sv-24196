@@ -1,0 +1,35 @@
+# Ringkasan hasil scripts/compose-smoke.sh
+# https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40059329481
+
+== 1. Build dan jalankan seluruh sistem ==
+Semua service sehat setelah 2 percobaan.
+
+== 2. Login lewat backend langsung ==
+Token diperoleh (50 karakter).
+
+== 3. Tanpa token harus 401 ==
+GET /films tanpa token -> 401
+
+== 4. Validasi gagal harus 422 ==
+POST /films tidak valid -> 422
+
+== 5. CRUD lengkap ==
+POST /films -> 201, id=4
+GET /films/4 -> 200
+PUT /films/4 -> 200
+DELETE /films/4 -> 200
+
+== 6. Frontend dan proxy Nginx -> backend ==
+GET http://localhost:8080/ memuat halaman Letterbox.
+POST http://localhost:8080/api/login -> 200 (proxy ke service backend).
+
+== 7. Persistensi named volume ==
+Film penanda dibuat.
+docker compose down selesai (volume db_data dipertahankan).
+Semua service sehat setelah 2 percobaan.
+Setelah down lalu up, film penanda masih ada -> volume persisten.
+
+== 8. Bukti FrankenPHP ==
+HTTP/1.1 200 OK
+Server: FrankenPHP Caddy
+X-Powered-By: PHP/8.3.36
