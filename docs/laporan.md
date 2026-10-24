@@ -314,23 +314,40 @@ export const updateFilm = (id, payload) => http.put(`/films/${id}`, payload).the
 export const deleteFilm = (id) => http.delete(`/films/${id}`).then((r) => r.data)
 ```
 
-> **[SCREENSHOT 3.1]** Halaman Beranda Letterbox di `http://localhost:8080`.
->
-> **[SCREENSHOT 3.2]** Halaman Login.
->
-> **[SCREENSHOT 3.3]** Daftar film setelah login (tiga data hasil seeder).
->
-> **[SCREENSHOT 3.4]** Form “Tambah Film” sedang diisi.
->
-> **[SCREENSHOT 3.5]** Setelah tambah: film baru muncul di tabel (201).
->
-> **[SCREENSHOT 3.6]** Mode “Ubah Film” dengan data lama terisi.
->
-> **[SCREENSHOT 3.7]** Setelah ubah: isi tabel berubah (200).
->
-> **[SCREENSHOT 3.8]** Dialog konfirmasi hapus.
->
-> **[SCREENSHOT 3.9]** Setelah hapus: film hilang dari tabel (200).
+![Beranda Letterbox](screenshots/01-beranda.png)
+
+*Gambar 3.1 — Halaman Beranda Letterbox.*
+
+![Halaman Login](screenshots/02-login.png)
+
+*Gambar 3.2 — Halaman Login. Token disimpan setelah kredensial valid.*
+
+![Daftar Film](screenshots/03-daftar-film.png)
+
+*Gambar 3.3 — Daftar film setelah login; tiga data berasal dari seeder.*
+
+![Form Tambah Film](screenshots/04-form-tambah.png)
+
+*Gambar 3.4 — Form “Tambah Film” sedang diisi.*
+
+![Setelah Tambah](screenshots/05-setelah-tambah.png)
+
+*Gambar 3.5 — Setelah tambah: film baru muncul di tabel (respons 201).*
+
+![Form Ubah Film](screenshots/06-form-ubah.png)
+
+*Gambar 3.6 — Mode “Ubah Film” dengan data lama terisi.*
+
+![Setelah Ubah](screenshots/07-setelah-ubah.png)
+
+*Gambar 3.7 — Setelah ubah: isi tabel berubah (respons 200).*
+
+> **[SCREENSHOT 3.8]** Dialog konfirmasi hapus (dialog bawaan browser; ambil manual
+> saat mengklik tombol **Hapus**).
+
+![Setelah Hapus](screenshots/08-setelah-hapus.png)
+
+*Gambar 3.9 — Setelah hapus: film hilang dari tabel (respons 200).*
 
 ### 3.4 DevTools
 
@@ -699,6 +716,24 @@ docker compose up -d
 Hasil nyata: `Setelah down lalu up, film penanda masih ada -> volume persisten.`
 (lihat `docs/evidence/smoke-summary.txt`).
 
+Query langsung ke container MySQL setelah `up` ulang:
+
+```bash
+docker compose exec -T db sh -c \
+  'mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -e "SELECT id,title,status FROM films ORDER BY id;"'
+```
+
+```
+id	title	status
+1	Akira	sudah_ditonton
+2	Perfect Days	sedang_ditonton
+3	The Grand Budapest Hotel	ingin_ditonton
+5	Persistence Marker	ingin_ditonton
+```
+
+Baris `Persistence Marker` membuktikan data yang dibuat lewat API masih tersimpan di MySQL
+setelah container dihapus dan dibuat ulang.
+
 ### 7.6 Verifikasi otomatis Docker Compose di GitHub Actions
 
 Selain dijalankan manual di laptop, seluruh alur Compose juga diverifikasi otomatis pada runner
@@ -716,7 +751,7 @@ Ubuntu GitHub Actions melalui workflow **Compose Smoke Test**
 7. menampilkan log FrankenPHP dan `docker compose ps`.
 
 Run yang berhasil:
-<https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40059329481>
+<https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40059764556>
 
 > **[SCREENSHOT 7.8]** Halaman run **Compose Smoke Test** yang hijau.
 >
@@ -783,7 +818,7 @@ X-Powered-By: PHP/8.3.36
 > (`logger":"http.log.access"`, `msg":"handled request"`) untuk permintaan `/api/...`.
 >
 > Log lengkap juga diunggah sebagai artifact **compose-evidence** pada run
-> <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40059329481>.
+> <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40059764556>.
 
 ---
 
@@ -990,7 +1025,7 @@ Run GitHub Actions yang dapat dibuka:
 - PR/`dev` tanpa deploy:
   <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40058850949>
 - Compose Smoke Test:
-  <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40059329481>
+  <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40059764556>
 
 > **Catatan:** PDF ini masih memuat penanda **[SCREENSHOT …]**. Ganti penanda tersebut
 > dengan tangkapan layar asli (lihat Lampiran B), lalu ekspor ulang ke PDF sebelum diunggah
