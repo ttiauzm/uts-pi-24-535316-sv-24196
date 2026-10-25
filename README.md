@@ -5,7 +5,7 @@
 **Kelas:** PL5AA
 **Mata kuliah:** Konstruksi dan Evolusi Perangkat Lunak (UTS)
 
-**Repository:** <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196>
+**Repository:** <https://github.com/ttiauzm/uts-pl-24-535316-sv-24196>
 **Laporan:** [`docs/laporan.md`](docs/laporan.md)
 
 Letterbox adalah aplikasi buku catatan tontonan: menyimpan film yang **ingin ditonton**,
@@ -193,11 +193,11 @@ Tag image memakai **commit SHA** (`ghcr.io/<owner>/<repo>-backend:<sha>` dan
 
 Bukti run yang sudah berhasil:
 
-- `main` + deploy: <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40058911795>
+- `main` + deploy: <https://github.com/ttiauzm/uts-pl-24-535316-sv-24196/actions/runs/40058911795>
 - Pull Request / `dev` tanpa deploy:
-  <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40058850949>
+  <https://github.com/ttiauzm/uts-pl-24-535316-sv-24196/actions/runs/40058850949>
 - Smoke test Docker Compose (CRUD + persistensi):
-  <https://github.com/ttiauzm/uts-pi-24-535316-sv-24196/actions/runs/40059329481>
+  <https://github.com/ttiauzm/uts-pl-24-535316-sv-24196/actions/runs/40059329481>
 
 Workflow manual **Compose Smoke Test** (`.github/workflows/compose-smoke.yml`) menjalankan
 `scripts/compose-smoke.sh` pada runner Ubuntu: build, `docker compose up -d`, login, CRUD,
